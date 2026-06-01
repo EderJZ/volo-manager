@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
@@ -91,4 +91,4 @@ def delete_client(
     db.delete(client)
     db.commit()
 
-    return None
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
