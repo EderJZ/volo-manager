@@ -1,5 +1,5 @@
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 
 class ProjectBase(BaseModel):
@@ -13,11 +13,21 @@ class ProjectBase(BaseModel):
 
 
 class ProjectCreate(ProjectBase):
-    pass
+
+    @model_validator(mode="after")
+    def validate_deadline(self):
+        if self.start_date and self.deadline and self.deadline < self.start_date:
+            raise ValueError("A data de entrega não pode ser anterior à data de início.")
+        return self
 
 
 class ProjectUpdate(ProjectBase):
-    pass
+
+    @model_validator(mode="after")
+    def validate_deadline(self):
+        if self.start_date and self.deadline and self.deadline < self.start_date:
+            raise ValueError("A data de entrega não pode ser anterior à data de início.")
+        return self
 
 
 class ProjectResponse(ProjectBase):
