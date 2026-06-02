@@ -11,6 +11,52 @@ const emptyForm = {
   client_id: "",
 };
 
+const STATUS_LABELS = {
+  orcamento: "Orçamento",
+  aprovado: "Aprovado",
+  gravando: "Gravando",
+  em_edicao: "Em edição",
+  entregue: "Entregue",
+  cancelado: "Cancelado",
+};
+
+const STATUS_COLORS = {
+  orcamento: { text: "#9b988f", border: "#3a3a3a" },
+  aprovado: { text: "#c8a13a", border: "#3a3320" },
+  gravando: { text: "#e05c5c", border: "#4a1f1f" },
+  em_edicao: { text: "#5c9be0", border: "#1f2f4a" },
+  entregue: { text: "#5ce07a", border: "#1f4a2a" },
+  cancelado: { text: "#6f6b63", border: "#2a2a2a" },
+};
+
+function getStatusStyle(status) {
+  return STATUS_COLORS[status] || { text: "#c8a13a", border: "#3a3320" };
+}
+
+function getStatusLabel(status) {
+  return STATUS_LABELS[status] || status.replace(/_/g, " ");
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return "Não definido";
+  const [year, month, day] = dateStr.split("-");
+  return `${day}/${month}/${year}`;
+}
+
+function getDeadlineAlert(deadlineStr) {
+  if (!deadlineStr) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadline = new Date(deadlineStr + "T00:00:00");
+  const diffDays = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) return { label: "Prazo vencido", color: "#e05c5c" };
+  if (diffDays === 0) return { label: "Vence hoje", color: "#e0a05c" };
+  if (diffDays <= 3)
+    return { label: `Vence em ${diffDays}d`, color: "#e0a05c" };
+  return null;
+}
+
 export function Projects() {
   const [projects, setProjects] = useState([]);
   const [clients, setClients] = useState([]);
@@ -40,6 +86,15 @@ export function Projects() {
     event.preventDefault();
     setError("");
 
+    if (
+      form.start_date &&
+      form.deadline &&
+      new Date(form.deadline) < new Date(form.start_date)
+    ) {
+      setError("A data de entrega não pode ser anterior à data de início.");
+      return;
+    }
+
     const payload = {
       ...form,
       budget: form.budget ? Number(form.budget) : null,
@@ -54,21 +109,26 @@ export function Projects() {
       } else {
         await api.post("/projects/", payload);
       }
-
       setForm(emptyForm);
       setEditingProjectId(null);
       loadProjects();
     } catch (err) {
+      const apiError = err.response?.data?.detail;
+      if (Array.isArray(apiError)) {
+        setError(apiError.map((item) => item.msg).join(" | "));
+        return;
+      }
+      if (typeof apiError === "string") {
+        setError(apiError);
+        return;
+      }
       setError("Não foi possível salvar o projeto.");
     }
   }
 
   async function handleDelete(projectId) {
     const confirmed = confirm("Tem certeza que deseja excluir este projeto?");
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       await api.delete(`/projects/${projectId}`);
@@ -80,7 +140,6 @@ export function Projects() {
 
   function handleEdit(project) {
     setEditingProjectId(project.id);
-
     setForm({
       title: project.title,
       description: project.description || "",
@@ -90,20 +149,22 @@ export function Projects() {
       deadline: project.deadline || "",
       client_id: String(project.client_id),
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleCancelEdit() {
     setEditingProjectId(null);
     setForm(emptyForm);
+    setError("");
   }
 
   function handleChange(event) {
     const { name, value } = event.target;
-
-    setForm({
-      ...form,
-      [name]: value,
-    });
+    if (name === "start_date" && form.deadline && value > form.deadline) {
+      setForm({ ...form, start_date: value, deadline: "" });
+      return;
+    }
+    setForm({ ...form, [name]: value });
   }
 
   function getClientName(clientId) {
@@ -130,6 +191,7 @@ export function Projects() {
       </header>
 
       <section className="grid gap-8 xl:grid-cols-[460px_1fr]">
+        {/* Formulário */}
         <form
           onSubmit={handleSubmit}
           className="h-fit border border-[#2a2a2a] bg-[#101010] p-6"
@@ -178,25 +240,36 @@ export function Projects() {
               name="budget"
               type="number"
               step="0.01"
-              placeholder="Orçamento"
+              placeholder="Orçamento (R$)"
               value={form.budget}
               onChange={handleChange}
             />
             <div className="grid gap-4 md:grid-cols-2">
-              <input
-                className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition focus:border-[#c8a13a]"
-                name="start_date"
-                type="date"
-                value={form.start_date}
-                onChange={handleChange}
-              />
-              <input
-                className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition focus:border-[#c8a13a]"
-                name="deadline"
-                type="date"
-                value={form.deadline}
-                onChange={handleChange}
-              />
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                  Início
+                </label>
+                <input
+                  className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition focus:border-[#c8a13a] [color-scheme:dark]"
+                  name="start_date"
+                  type="date"
+                  value={form.start_date}
+                  onChange={handleChange}
+                />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                  Prazo
+                </label>
+                <input
+                  className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition focus:border-[#c8a13a] [color-scheme:dark]"
+                  name="deadline"
+                  type="date"
+                  min={form.start_date || undefined}
+                  value={form.deadline}
+                  onChange={handleChange}
+                />
+              </div>
             </div>
             <select
               className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition focus:border-[#c8a13a]"
@@ -221,7 +294,6 @@ export function Projects() {
             >
               {editingProjectId ? "Atualizar projeto" : "Cadastrar projeto"}
             </button>
-
             {editingProjectId && (
               <button
                 className="border border-[#3a3320] px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
@@ -236,90 +308,120 @@ export function Projects() {
           {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
         </form>
 
-        <section className="grid gap-4">
-          {projects.map((project) => (
-            <article
-              key={project.id}
-              className="border border-[#2a2a2a] bg-[#101010] p-6 transition hover:border-[#4a422d]"
-            >
-              <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
-                    Projeto #{project.id}
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold">
-                    {project.title}
-                  </h2>
-                  <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9b988f]">
-                    {project.description || "Sem descrição informada."}
-                  </p>
-                </div>
+        {/* Lista de projetos */}
+        <section className="grid gap-4 self-start">
+          {projects.length === 0 && (
+            <div className="border border-[#2a2a2a] bg-[#101010] p-10 text-center">
+              <p className="text-sm uppercase tracking-widest text-[#9b988f]">
+                Nenhum projeto cadastrado
+              </p>
+            </div>
+          )}
 
-                <span className="w-fit border border-[#3a3320] px-3 py-2 text-xs uppercase tracking-[0.16em] text-[#c8a13a]">
-                  {project.status.replace("_", " ")}
-                </span>
-              </div>
+          {projects.map((project) => {
+            const statusStyle = getStatusStyle(project.status);
+            const deadlineAlert = getDeadlineAlert(project.deadline);
 
-              <div className="grid gap-4 border-t border-[#2a2a2a] pt-5 text-sm text-[#9b988f] md:grid-cols-2 xl:grid-cols-4">
-                <div>
-                  <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
-                    Cliente
+            return (
+              <article
+                key={project.id}
+                className="border border-[#2a2a2a] bg-[#101010] p-6 transition hover:border-[#4a422d]"
+              >
+                <div className="mb-5 flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                  <div className="flex-1">
+                    <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
+                      Projeto #{project.id}
+                    </p>
+                    <h2 className="mt-2 text-2xl font-semibold">
+                      {project.title}
+                    </h2>
+                    {project.description && (
+                      <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9b988f]">
+                        {project.description}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Badge de status */}
+                  <span
+                    className="w-fit border px-3 py-2 text-xs uppercase tracking-[0.16em]"
+                    style={{
+                      color: statusStyle.text,
+                      borderColor: statusStyle.border,
+                    }}
+                  >
+                    {getStatusLabel(project.status)}
                   </span>
-                  <strong className="mt-1 block text-[#f5f1e8]">
-                    {getClientName(project.client_id)}
-                  </strong>
                 </div>
 
-                <div>
-                  <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
-                    Orçamento
-                  </span>
-                  <strong className="mt-1 block text-[#f5f1e8]">
-                    {Number(project.budget || 0).toLocaleString("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    })}
-                  </strong>
+                <div className="grid gap-4 border-t border-[#2a2a2a] pt-5 text-sm text-[#9b988f] md:grid-cols-2 xl:grid-cols-4">
+                  <div>
+                    <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                      Cliente
+                    </span>
+                    <strong className="mt-1 block text-[#f5f1e8]">
+                      {getClientName(project.client_id)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                      Orçamento
+                    </span>
+                    <strong className="mt-1 block text-[#f5f1e8]">
+                      {Number(project.budget || 0).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                      Início
+                    </span>
+                    <strong className="mt-1 block text-[#f5f1e8]">
+                      {formatDate(project.start_date)}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
+                      Prazo
+                    </span>
+                    <strong className="mt-1 block text-[#f5f1e8]">
+                      {formatDate(project.deadline)}
+                    </strong>
+                    {deadlineAlert && (
+                      <span
+                        className="mt-1 block text-xs uppercase tracking-wider"
+                        style={{ color: deadlineAlert.color }}
+                      >
+                        {deadlineAlert.label}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
-                <div>
-                  <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
-                    Início
-                  </span>
-                  <strong className="mt-1 block text-[#f5f1e8]">
-                    {project.start_date || "Não definido"}
-                  </strong>
+                <div className="mt-6 flex gap-3">
+                  <button
+                    className="border border-[#3a3320] px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
+                    type="button"
+                    onClick={() => handleEdit(project)}
+                  >
+                    Editar
+                  </button>
+                  <button
+                    className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
+                    type="button"
+                    onClick={() => handleDelete(project.id)}
+                  >
+                    Excluir
+                  </button>
                 </div>
-
-                <div>
-                  <span className="block text-xs uppercase tracking-[0.18em] text-[#6f6b63]">
-                    Prazo
-                  </span>
-                  <strong className="mt-1 block text-[#f5f1e8]">
-                    {project.deadline || "Não definido"}
-                  </strong>
-                </div>
-              </div>
-
-              <div className="mt-6 flex gap-3">
-                <button
-                  className="border border-[#3a3320] px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
-                  type="button"
-                  onClick={() => handleEdit(project)}
-                >
-                  Editar
-                </button>
-
-                <button
-                  className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
-                  type="button"
-                  onClick={() => handleDelete(project.id)}
-                >
-                  Excluir
-                </button>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </section>
       </section>
     </main>

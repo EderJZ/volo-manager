@@ -8,6 +8,13 @@ const emptyForm = {
   company: "",
 };
 
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function Clients() {
   const [clients, setClients] = useState([]);
   const [form, setForm] = useState(emptyForm);
@@ -33,53 +40,60 @@ export function Clients() {
       } else {
         await api.post("/clients/", form);
       }
-
       setForm(emptyForm);
       setEditingClientId(null);
       loadClients();
     } catch (err) {
+      const apiError = err.response?.data?.detail;
+      if (Array.isArray(apiError)) {
+        setError(apiError.map((item) => item.msg).join(" | "));
+        return;
+      }
+      if (typeof apiError === "string") {
+        setError(apiError);
+        return;
+      }
       setError("Não foi possível salvar o cliente.");
     }
   }
 
   async function handleDelete(clientId) {
     const confirmed = confirm("Tem certeza que deseja excluir este cliente?");
-
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
 
     try {
       await api.delete(`/clients/${clientId}`);
       loadClients();
     } catch (err) {
+      const apiError = err.response?.data?.detail;
+      if (typeof apiError === "string") {
+        setError(apiError);
+        return;
+      }
       setError("Não foi possível excluir o cliente.");
     }
   }
 
   function handleEdit(client) {
     setEditingClientId(client.id);
-
     setForm({
       name: client.name,
       email: client.email,
       phone: client.phone || "",
       company: client.company || "",
     });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function handleCancelEdit() {
     setEditingClientId(null);
     setForm(emptyForm);
+    setError("");
   }
 
   function handleChange(event) {
     const { name, value } = event.target;
-
-    setForm({
-      ...form,
-      [name]: value,
-    });
+    setForm({ ...form, [name]: value });
   }
 
   useEffect(() => {
@@ -99,6 +113,7 @@ export function Clients() {
       </header>
 
       <section className="grid gap-8 xl:grid-cols-[420px_1fr]">
+        {/* Formulário */}
         <form
           onSubmit={handleSubmit}
           className="h-fit border border-[#2a2a2a] bg-[#101010] p-6"
@@ -116,12 +131,11 @@ export function Clients() {
             <input
               className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
               name="name"
-              placeholder="Nome"
+              placeholder="Nome completo"
               value={form.name}
               onChange={handleChange}
               required
             />
-
             <input
               className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
               name="email"
@@ -131,22 +145,22 @@ export function Clients() {
               onChange={handleChange}
               required
             />
-
-            <input
-              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
-              name="phone"
-              placeholder="Telefone"
-              value={form.phone}
-              onChange={handleChange}
-            />
-
-            <input
-              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
-              name="company"
-              placeholder="Empresa"
-              value={form.company}
-              onChange={handleChange}
-            />
+            <div className="grid gap-4 md:grid-cols-2">
+              <input
+                className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+                name="phone"
+                placeholder="Telefone"
+                value={form.phone}
+                onChange={handleChange}
+              />
+              <input
+                className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+                name="company"
+                placeholder="Empresa"
+                value={form.company}
+                onChange={handleChange}
+              />
+            </div>
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
@@ -156,7 +170,6 @@ export function Clients() {
             >
               {editingClientId ? "Atualizar cliente" : "Cadastrar cliente"}
             </button>
-
             {editingClientId && (
               <button
                 className="border border-[#3a3320] px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
@@ -171,26 +184,44 @@ export function Clients() {
           {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
         </form>
 
-        <section className="grid gap-4">
+        {/* Lista de clientes */}
+        <section className="grid gap-4 self-start">
+          {clients.length === 0 && (
+            <div className="border border-[#2a2a2a] bg-[#101010] p-10 text-center">
+              <p className="text-sm uppercase tracking-widest text-[#9b988f]">
+                Nenhum cliente cadastrado
+              </p>
+            </div>
+          )}
+
           {clients.map((client) => (
             <article
               key={client.id}
               className="border border-[#2a2a2a] bg-[#101010] p-6 transition hover:border-[#4a422d]"
             >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
-                    Cliente #{client.id}
-                  </p>
-                  <h2 className="mt-2 text-2xl font-semibold">{client.name}</h2>
-                  <div className="mt-4 space-y-1 text-sm text-[#9b988f]">
-                    <p>{client.email}</p>
-                    <p>{client.phone || "Telefone não informado"}</p>
-                    <p>{client.company || "Empresa não informada"}</p>
+                {/* Avatar + dados */}
+                <div className="flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-sm font-semibold text-[#c8a13a]">
+                    {getInitials(client.name)}
+                  </div>
+                  <div>
+                    <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
+                      Cliente #{client.id}
+                    </p>
+                    <h2 className="mt-1 text-xl font-semibold">
+                      {client.name}
+                    </h2>
+                    <div className="mt-3 grid gap-x-6 gap-y-1 text-sm text-[#9b988f] md:grid-cols-2">
+                      <p>{client.email}</p>
+                      <p>{client.phone || "Telefone não informado"}</p>
+                      <p>{client.company || "Empresa não informada"}</p>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex gap-3">
+                {/* Botões */}
+                <div className="flex shrink-0 gap-3">
                   <button
                     className="border border-[#3a3320] px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
                     type="button"
@@ -198,7 +229,6 @@ export function Clients() {
                   >
                     Editar
                   </button>
-
                   <button
                     className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
                     type="button"
