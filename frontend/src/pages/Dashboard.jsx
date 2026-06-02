@@ -1,10 +1,7 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
 export function Dashboard() {
-  const navigate = useNavigate();
-  
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
 
@@ -15,11 +12,6 @@ export function Dashboard() {
     } catch (err) {
       setError("Não foi possível carregar o dashboard.");
     }
-  }
-
-  function handleLogout() {
-    localStorage.removeItem("volo_token");
-    navigate("/login");
   }
 
   useEffect(() => {
@@ -46,8 +38,6 @@ export function Dashboard() {
           <h1>Dashboard</h1>
           <p>Resumo geral do Volo Manager.</p>
         </div>
-
-        <button onClick={handleLogout}>Sair</button>
       </header>
 
       <section>

@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from "react-router-dom";
+import { AppLayout } from "./components/AppLayout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { Clients } from "./pages/Clients";
 import { Dashboard } from "./pages/Dashboard";
@@ -11,31 +12,16 @@ function App() {
       <Route path="/login" element={<Login />} />
 
       <Route
-        path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <AppLayout />
           </ProtectedRoute>
         }
-      />
-
-      <Route
-        path="/clients"
-        element={
-          <ProtectedRoute>
-            <Clients />
-          </ProtectedRoute>
-        }
-      />
-
-      <Route
-        path="/projects"
-        element={
-          <ProtectedRoute>
-            <Projects />
-          </ProtectedRoute>
-        }
-      />
+      >
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/clients" element={<Clients />} />
+        <Route path="/projects" element={<Projects />} />
+      </Route>
 
       <Route path="/" element={<Navigate to="/dashboard" replace />} />
     </Routes>
