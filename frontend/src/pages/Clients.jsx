@@ -88,71 +88,129 @@ export function Clients() {
 
   return (
     <main>
-      <h1>Clientes</h1>
-      <p>Gerencie os clientes cadastrados no Volo Manager.</p>
+      <header className="mb-10 border-b border-[#2a2a2a] pb-8">
+        <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
+          Relacionamento
+        </p>
+        <h1 className="mt-3 text-4xl font-semibold tracking-wide">Clientes</h1>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9b988f]">
+          Gerencie contatos, empresas e informações comerciais dos clientes.
+        </p>
+      </header>
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="name"
-          placeholder="Nome"
-          value={form.name}
-          onChange={handleChange}
-          required
-        />
+      <section className="grid gap-8 xl:grid-cols-[420px_1fr]">
+        <form
+          onSubmit={handleSubmit}
+          className="h-fit border border-[#2a2a2a] bg-[#101010] p-6"
+        >
+          <div className="mb-6">
+            <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
+              {editingClientId ? "Edição" : "Cadastro"}
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold">
+              {editingClientId ? "Atualizar cliente" : "Novo cliente"}
+            </h2>
+          </div>
 
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          value={form.email}
-          onChange={handleChange}
-          required
-        />
+          <div className="space-y-4">
+            <input
+              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+              name="name"
+              placeholder="Nome"
+              value={form.name}
+              onChange={handleChange}
+              required
+            />
 
-        <input
-          name="phone"
-          placeholder="Telefone"
-          value={form.phone}
-          onChange={handleChange}
-        />
+            <input
+              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+              required
+            />
 
-        <input
-          name="company"
-          placeholder="Empresa"
-          value={form.company}
-          onChange={handleChange}
-        />
+            <input
+              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+              name="phone"
+              placeholder="Telefone"
+              value={form.phone}
+              onChange={handleChange}
+            />
 
-        <button type="submit">
-          {editingClientId ? "Atualizar cliente" : "Cadastrar cliente"}
-        </button>
+            <input
+              className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+              name="company"
+              placeholder="Empresa"
+              value={form.company}
+              onChange={handleChange}
+            />
+          </div>
 
-        {editingClientId && (
-          <button type="button" onClick={handleCancelEdit}>
-            Cancelar edição
-          </button>
-        )}
-      </form>
-
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <section>
-        {clients.map((client) => (
-          <article key={client.id}>
-            <h2>{client.name}</h2>
-            <p>{client.email}</p>
-            <p>{client.phone}</p>
-            <p>{client.company}</p>
-
-            <button type="button" onClick={() => handleEdit(client)}>
-              Editar
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              className="bg-[#c8a13a] px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#090909] transition hover:bg-[#e0bd55]"
+              type="submit"
+            >
+              {editingClientId ? "Atualizar cliente" : "Cadastrar cliente"}
             </button>
 
-            <button type="button" onClick={() => handleDelete(client.id)}>
-              Excluir
-            </button>
-          </article>
-        ))}
+            {editingClientId && (
+              <button
+                className="border border-[#3a3320] px-4 py-3 text-sm uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
+                type="button"
+                onClick={handleCancelEdit}
+              >
+                Cancelar edição
+              </button>
+            )}
+          </div>
+
+          {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
+        </form>
+
+        <section className="grid gap-4">
+          {clients.map((client) => (
+            <article
+              key={client.id}
+              className="border border-[#2a2a2a] bg-[#101010] p-6 transition hover:border-[#4a422d]"
+            >
+              <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
+                    Cliente #{client.id}
+                  </p>
+                  <h2 className="mt-2 text-2xl font-semibold">{client.name}</h2>
+                  <div className="mt-4 space-y-1 text-sm text-[#9b988f]">
+                    <p>{client.email}</p>
+                    <p>{client.phone || "Telefone não informado"}</p>
+                    <p>{client.company || "Empresa não informada"}</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    className="border border-[#3a3320] px-4 py-2 text-xs uppercase tracking-[0.18em] text-[#c8a13a] transition hover:bg-[#171717]"
+                    type="button"
+                    onClick={() => handleEdit(client)}
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
+                    type="button"
+                    onClick={() => handleDelete(client.id)}
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            </article>
+          ))}
+        </section>
       </section>
     </main>
   );
