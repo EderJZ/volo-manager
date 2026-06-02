@@ -1,17 +1,18 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
-export function Login({ onLogin }) {
+export function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("eder@email.com");
   const [password, setPassword] = useState("123456");
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
   async function handleLogin(event) {
     event.preventDefault();
 
     setError("");
-    setMessage("");
 
     try {
       const formData = new URLSearchParams();
@@ -26,8 +27,7 @@ export function Login({ onLogin }) {
 
       localStorage.setItem("volo_token", response.data.access_token);
 
-      setMessage("Login realizado com sucesso!");
-      onLogin();
+      navigate("/dashboard");
     } catch (err) {
       setError("Email ou senha inválidos.");
     }
@@ -57,7 +57,6 @@ export function Login({ onLogin }) {
           />
         </label>
 
-        {message && <p style={{ color: "green" }}>{message}</p>}
         {error && <p style={{ color: "red" }}>{error}</p>}
 
         <button type="submit">Entrar</button>

@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
-export function Dashboard({ onLogout }) {
+export function Dashboard() {
+  const navigate = useNavigate();
+  
   const [summary, setSummary] = useState(null);
   const [error, setError] = useState("");
 
@@ -16,7 +19,7 @@ export function Dashboard({ onLogout }) {
 
   function handleLogout() {
     localStorage.removeItem("volo_token");
-    onLogout();
+    navigate("/login");
   }
 
   useEffect(() => {

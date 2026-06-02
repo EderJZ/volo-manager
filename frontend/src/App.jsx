@@ -1,18 +1,45 @@
-import { useState } from "react";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { Clients } from "./pages/Clients";
 import { Dashboard } from "./pages/Dashboard";
 import { Login } from "./pages/Login";
 import { Projects } from "./pages/Projects";
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    Boolean(localStorage.getItem("volo_token"))
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/clients"
+        element={
+          <ProtectedRoute>
+            <Clients />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/projects"
+        element={
+          <ProtectedRoute>
+            <Projects />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route path="/" element={<Navigate to="/dashboard" replace />} />
+    </Routes>
   );
-
-  if (isAuthenticated) {
-    return <Projects onLogout={() => setIsAuthenticated(false)} />;
-  }
-
-  return <Login onLogin={() => setIsAuthenticated(true)} />;
 }
 
 export default App;
