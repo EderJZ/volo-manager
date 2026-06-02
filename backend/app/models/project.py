@@ -17,4 +17,4 @@ class Project(Base):
 
     client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
 
-    client = relationship("Client")
+    client = relationship("Client", back_populates="projects")

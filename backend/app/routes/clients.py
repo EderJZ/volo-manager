@@ -85,7 +85,13 @@ def delete_client(
     if not client:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Cliente nao encontrado"
+            detail="Cliente não encontrado."
+        )
+
+    if client.projects:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Não é possível excluir '{client.name}' pois ele possui {len(client.projects)} projeto(s) vinculado(s)."
         )
 
     db.delete(client)

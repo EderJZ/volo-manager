@@ -57,8 +57,10 @@ export function Clients() {
     }
   }
 
-  async function handleDelete(clientId) {
-    const confirmed = confirm("Tem certeza que deseja excluir este cliente?");
+  async function handleDelete(clientId, clientName) {
+    const confirmed = confirm(
+      `Tem certeza que deseja excluir "${clientName}"?\n\nEsta ação não pode ser desfeita.`,
+    );
     if (!confirmed) return;
 
     try {
@@ -232,7 +234,7 @@ export function Clients() {
                   <button
                     className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
                     type="button"
-                    onClick={() => handleDelete(client.id)}
+                    onClick={() => handleDelete(client.id, client.name)}
                   >
                     Excluir
                   </button>
