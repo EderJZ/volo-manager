@@ -6,7 +6,7 @@ from app.models.user import User
 from app.models.client import Client
 from app.routes import auth, clients, projects, dashboard
 from app.models.project import Project
-
+from app.routes import auth, clients, projects, dashboard, users
 
 Base.metadata.create_all(bind=engine)
 
@@ -27,6 +27,7 @@ app.include_router(auth.router)
 app.include_router(clients.router)
 app.include_router(projects.router)
 app.include_router(dashboard.router)
+app.include_router(users.router)
 
 @app.get("/")
 def health_check():

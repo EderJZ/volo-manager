@@ -6,6 +6,7 @@ const navItems = [
   { path: "/dashboard", label: "Dashboard", icon: "⬡" },
   { path: "/clients", label: "Clientes", icon: "◇" },
   { path: "/projects", label: "Projetos", icon: "▷" },
+  { path: "/users", label: "Usuários", icon: "◈" },
 ];
 
 export function AppLayout() {
