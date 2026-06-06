@@ -282,6 +282,7 @@ export function Projects() {
               {clients.map((client) => (
                 <option key={client.id} value={client.id}>
                   {client.name}
+                  {client.company ? ` — ${client.company}` : ""}
                 </option>
               ))}
             </select>
