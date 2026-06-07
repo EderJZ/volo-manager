@@ -185,6 +185,7 @@ export function Users() {
               <option value="admin">Administrador</option>
               <option value="editor">Editor</option>
               <option value="operator">Operador</option>
+              <option value="client">Cliente</option>
             </select>
           </div>
 

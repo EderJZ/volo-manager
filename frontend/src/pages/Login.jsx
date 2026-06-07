@@ -25,8 +25,15 @@ export function Login() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
       });
 
-      localStorage.setItem("volo_token", response.data.access_token);
-      navigate("/dashboard");
+      const token = response.data.access_token;
+      localStorage.setItem("volo_token", token);
+
+      const payload = JSON.parse(atob(token.split(".")[1]));
+      if (payload.role === "client") {
+        navigate("/client-portal");
+      } else {
+        navigate("/dashboard");
+      }
     } catch (err) {
       setError("Email ou senha inválidos.");
     } finally {
