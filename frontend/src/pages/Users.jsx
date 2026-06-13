@@ -44,7 +44,7 @@ export function Users() {
   async function loadUsers() {
     try {
       const response = await api.get("/users/");
-      setUsers(response.data);
+      setUsers(response.data.filter((u) => u.role !== "client"));
     } catch (err) {
       setError("Não foi possível carregar os usuários.");
     }
@@ -185,7 +185,6 @@ export function Users() {
               <option value="admin">Administrador</option>
               <option value="editor">Editor</option>
               <option value="operator">Operador</option>
-              <option value="client">Cliente</option>
             </select>
           </div>
 
