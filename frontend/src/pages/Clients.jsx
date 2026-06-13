@@ -6,6 +6,7 @@ const emptyForm = {
   email: "",
   phone: "",
   company: "",
+  password: "",
 };
 
 function getInitials(name) {
@@ -20,6 +21,7 @@ export function Clients() {
   const [form, setForm] = useState(emptyForm);
   const [editingClientId, setEditingClientId] = useState(null);
   const [error, setError] = useState("");
+  const [showInactive, setShowInactive] = useState(false);
 
   async function loadClients() {
     try {
@@ -36,7 +38,9 @@ export function Clients() {
 
     try {
       if (editingClientId) {
-        await api.put(`/clients/${editingClientId}`, form);
+        const payload = { ...form };
+        delete payload.password;
+        await api.put(`/clients/${editingClientId}`, payload);
       } else {
         await api.post("/clients/", form);
       }
@@ -57,9 +61,9 @@ export function Clients() {
     }
   }
 
-  async function handleDelete(clientId, clientName) {
+  async function handleDeactivate(clientId, clientName) {
     const confirmed = confirm(
-      `Tem certeza que deseja excluir "${clientName}"?\n\nEsta ação não pode ser desfeita.`,
+      `Deseja desativar "${clientName}"?\n\nO cliente perderá acesso ao portal mas seus dados serão mantidos.`,
     );
     if (!confirmed) return;
 
@@ -72,7 +76,16 @@ export function Clients() {
         setError(apiError);
         return;
       }
-      setError("Não foi possível excluir o cliente.");
+      setError("Não foi possível desativar o cliente.");
+    }
+  }
+
+  async function handleActivate(clientId) {
+    try {
+      await api.put(`/clients/${clientId}`, { is_active: true });
+      loadClients();
+    } catch (err) {
+      setError("Não foi possível reativar o cliente.");
     }
   }
 
@@ -83,6 +96,7 @@ export function Clients() {
       email: client.email,
       phone: client.phone || "",
       company: client.company || "",
+      password: "",
     });
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -101,6 +115,10 @@ export function Clients() {
   useEffect(() => {
     loadClients();
   }, []);
+
+  const filteredClients = showInactive
+    ? clients
+    : clients.filter((c) => c.is_active);
 
   return (
     <main>
@@ -163,6 +181,19 @@ export function Clients() {
                 onChange={handleChange}
               />
             </div>
+
+            {/* Senha só aparece no cadastro */}
+            {!editingClientId && (
+              <input
+                className="w-full border border-[#2a2a2a] bg-[#171717] px-4 py-3 text-[#f5f1e8] outline-none transition placeholder:text-[#6f6b63] focus:border-[#c8a13a]"
+                name="password"
+                type="password"
+                placeholder="Senha de acesso ao portal"
+                value={form.password}
+                onChange={handleChange}
+                required
+              />
+            )}
           </div>
 
           <div className="mt-6 flex flex-col gap-3">
@@ -188,18 +219,33 @@ export function Clients() {
 
         {/* Lista de clientes */}
         <section className="grid gap-4 self-start">
-          {clients.length === 0 && (
+          {/* Filtro de inativos */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => setShowInactive(!showInactive)}
+              className="text-xs uppercase tracking-widest text-[#9b988f] transition hover:text-[#c8a13a]"
+            >
+              {showInactive ? "Ocultar inativos" : "Mostrar inativos"}
+            </button>
+          </div>
+
+          {filteredClients.length === 0 && (
             <div className="border border-[#2a2a2a] bg-[#101010] p-10 text-center">
               <p className="text-sm uppercase tracking-widest text-[#9b988f]">
-                Nenhum cliente cadastrado
+                Nenhum cliente encontrado
               </p>
             </div>
           )}
 
-          {clients.map((client) => (
+          {filteredClients.map((client) => (
             <article
               key={client.id}
-              className="border border-[#2a2a2a] bg-[#101010] p-6 transition hover:border-[#4a422d]"
+              className={`border bg-[#101010] p-6 transition ${
+                client.is_active
+                  ? "border-[#2a2a2a] hover:border-[#4a422d]"
+                  : "border-[#2a2a2a] opacity-50"
+              }`}
             >
               <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
                 {/* Avatar + dados */}
@@ -208,9 +254,16 @@ export function Clients() {
                     {getInitials(client.name)}
                   </div>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
-                      Cliente #{client.id}
-                    </p>
+                    <div className="flex items-center gap-3">
+                      <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
+                        Cliente #{client.id}
+                      </p>
+                      {!client.is_active && (
+                        <span className="border border-[#3a3a3a] px-2 py-0.5 text-[10px] uppercase tracking-wider text-[#6f6b63]">
+                          Inativo
+                        </span>
+                      )}
+                    </div>
                     <h2 className="mt-1 text-xl font-semibold">
                       {client.name}
                     </h2>
@@ -231,13 +284,23 @@ export function Clients() {
                   >
                     Editar
                   </button>
-                  <button
-                    className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
-                    type="button"
-                    onClick={() => handleDelete(client.id, client.name)}
-                  >
-                    Excluir
-                  </button>
+                  {client.is_active ? (
+                    <button
+                      className="border border-red-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-red-300 transition hover:bg-red-950/40"
+                      type="button"
+                      onClick={() => handleDeactivate(client.id, client.name)}
+                    >
+                      Desativar
+                    </button>
+                  ) : (
+                    <button
+                      className="border border-green-900/60 px-4 py-2 text-xs uppercase tracking-[0.18em] text-green-300 transition hover:bg-green-950/40"
+                      type="button"
+                      onClick={() => handleActivate(client.id)}
+                    >
+                      Reativar
+                    </button>
+                  )}
                 </div>
               </div>
             </article>

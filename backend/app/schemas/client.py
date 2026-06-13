@@ -9,15 +9,20 @@ class ClientBase(BaseModel):
 
 
 class ClientCreate(ClientBase):
-    pass
+    password: str
 
 
-class ClientUpdate(ClientBase):
-    pass
+class ClientUpdate(BaseModel):
+    name: str | None = None
+    email: EmailStr | None = None
+    phone: str | None = None
+    company: str | None = None
+    is_active: bool | None = None
 
 
 class ClientResponse(ClientBase):
     id: int
+    is_active: bool
 
     class Config:
         from_attributes = True

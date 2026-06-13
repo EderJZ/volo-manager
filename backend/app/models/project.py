@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Date, Float, ForeignKey, Integer, String, Text
 from sqlalchemy.orm import relationship
-
 from app.database import Base
 
 
@@ -15,6 +14,5 @@ class Project(Base):
     start_date = Column(Date, nullable=True)
     deadline = Column(Date, nullable=True)
 
-    client_id = Column(Integer, ForeignKey("clients.id"), nullable=False)
-
-    client = relationship("Client", back_populates="projects")
+    client_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    client = relationship("User", back_populates="projects")
