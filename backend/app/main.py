@@ -4,8 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.models.user import User
 from app.models.client import Client
-from app.routes import auth, clients, projects, dashboard, users, client_portal
+from app.routes import auth, clients, projects, dashboard, users, client_portal, project_notes, project_phases
 from app.models.project import Project
+from app.models.project_note import ProjectNote
+from app.models.project_phase_date import ProjectPhaseDate
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +30,9 @@ app.include_router(projects.router)
 app.include_router(dashboard.router)
 app.include_router(users.router)
 app.include_router(client_portal.router)
+app.include_router(project_notes.router)
+app.include_router(project_phases.router)
+
 
 @app.get("/")
 def health_check():

@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, HTTPException, Response, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models.client import Client
 from app.models.project import Project
 from app.models.user import User
 from app.schemas.project import ProjectCreate, ProjectResponse, ProjectUpdate
@@ -42,7 +41,10 @@ def create_project(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    client = db.query(Client).filter(Client.id == project_data.client_id).first()
+    client = db.query(User).filter(
+        User.id == project_data.client_id,
+        User.role == "client"
+    ).first()
 
     if not client:
         raise HTTPException(
@@ -74,7 +76,10 @@ def update_project(
             detail="Projeto nao encontrado"
         )
 
-    client = db.query(Client).filter(Client.id == project_data.client_id).first()
+    client = db.query(User).filter(
+        User.id == project_data.client_id,
+        User.role == "client"
+    ).first()
 
     if not client:
         raise HTTPException(

@@ -1,5 +1,7 @@
 from datetime import date
 from pydantic import BaseModel, model_validator
+from app.schemas.project_note import ProjectNoteResponse
+from app.schemas.project_phase_date import ProjectPhaseDateResponse
 
 
 class ProjectBase(BaseModel):
@@ -10,6 +12,7 @@ class ProjectBase(BaseModel):
     start_date: date | None = None
     deadline: date | None = None
     client_id: int
+    current_phase_description: str | None = None
 
 
 class ProjectCreate(ProjectBase):
@@ -32,6 +35,10 @@ class ProjectUpdate(ProjectBase):
 
 class ProjectResponse(ProjectBase):
     id: int
+    has_client_update: bool = False
+    notes: list[ProjectNoteResponse] = []
+    phase_dates: list[ProjectPhaseDateResponse] = []
+    client_name: str | None = None
 
     class Config:
         from_attributes = True
