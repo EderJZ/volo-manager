@@ -44,23 +44,28 @@ export function AppLayout() {
 
         {/* Nav */}
         <nav className="flex flex-1 flex-col gap-1">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path;
-            return (
-              <Link
-                key={item.path}
-                to={item.path}
-                className={`flex items-center gap-3 border-l-2 px-4 py-3 text-xs uppercase tracking-[0.2em] transition ${
-                  isActive
-                    ? "border-[#c8a13a] bg-[#171717] text-[#c8a13a]"
-                    : "border-transparent text-[#9b988f] hover:border-[#3a3320] hover:bg-[#131313] hover:text-[#f5f1e8]"
-                }`}
-              >
-                <span className="text-base">{item.icon}</span>
-                {item.label}
-              </Link>
-            );
-          })}
+          {navItems
+            .filter((item) => {
+              if (item.path === "/users") return user?.role === "admin";
+              return true;
+            })
+            .map((item) => {
+              const isActive = location.pathname === item.path;
+              return (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`flex items-center gap-3 border-l-2 px-4 py-3 text-xs uppercase tracking-[0.2em] transition ${
+                    isActive
+                      ? "border-[#c8a13a] bg-[#171717] text-[#c8a13a]"
+                      : "border-transparent text-[#9b988f] hover:border-[#3a3320] hover:bg-[#131313] hover:text-[#f5f1e8]"
+                  }`}
+                >
+                  <span className="text-base">{item.icon}</span>
+                  {item.label}
+                </Link>
+              );
+            })}
         </nav>
 
         {/* Usuário + Sair */}
