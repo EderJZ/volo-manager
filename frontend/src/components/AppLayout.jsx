@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { api } from "../services/api";
 
@@ -9,16 +9,36 @@ const navItems = [
   { path: "/users", label: "Usuários", icon: "◈" },
 ];
 
+function getInitials(name) {
+  if (!name) return "?";
+  const parts = name.trim().split(" ");
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+}
+
 export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
 
   useEffect(() => {
     api
       .get("/auth/me")
       .then((res) => setUser(res.data))
       .catch(() => {});
+  }, []);
+
+  // Fecha o dropdown ao clicar fora
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   function handleLogout() {
@@ -29,7 +49,6 @@ export function AppLayout() {
   return (
     <div className="min-h-screen bg-[#090909] text-[#f5f1e8]">
       <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-[#2a2a2a] bg-[#0c0c0c] px-6 py-8">
-        {/* Logo */}
         {/* Logo */}
         <div className="mb-10 border-b border-[#2a2a2a] pb-8">
           <Link to="/dashboard" className="group block">
@@ -80,19 +99,81 @@ export function AppLayout() {
               </p>
             </div>
           )}
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="w-full border border-[#3a3320] px-4 py-3 text-xs uppercase tracking-[0.2em] text-[#c8a13a] transition hover:bg-[#c8a13a] hover:text-[#090909]"
-          >
-            Sair
-          </button>
         </div>
       </aside>
 
-      <section className="ml-64 min-h-screen px-10 py-8">
-        <Outlet />
-      </section>
+      {/* Área de conteúdo */}
+      <div className="ml-64 min-h-screen relative">
+        {/* Avatar fixo no canto superior direito */}
+        {user && (
+          <div className="absolute right-10 top-8 z-30" ref={dropdownRef}>
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="flex items-center gap-3 transition hover:opacity-80"
+            >
+              <div className="flex h-9 w-9 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-sm font-semibold text-[#c8a13a]">
+                {getInitials(user.name)}
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-semibold text-[#f5f1e8]">
+                  {user.name}
+                </p>
+                <p className="text-xs text-[#6f6b63]">{user.role}</p>
+              </div>
+              <span className="text-xs text-[#6f6b63]">
+                {dropdownOpen ? "▲" : "▼"}
+              </span>
+            </button>
+
+            {dropdownOpen && (
+              <div className="absolute right-0 top-12 z-50 w-56 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl">
+                <div className="border-b border-[#2a2a2a] px-4 py-3">
+                  <p className="text-sm font-semibold text-[#f5f1e8]">
+                    {user.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6f6b63]">{user.email}</p>
+                </div>
+                <div className="py-1">
+                  <button
+                    disabled
+                    className="flex w-full items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-[#4a4a4a] cursor-not-allowed"
+                  >
+                    <span>✎</span>
+                    Editar perfil
+                    <span className="ml-auto text-[10px] text-[#3a3a3a]">
+                      em breve
+                    </span>
+                  </button>
+                  <button
+                    disabled
+                    className="flex w-full items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-[#4a4a4a] cursor-not-allowed"
+                  >
+                    <span>⇄</span>
+                    Trocar usuário
+                    <span className="ml-auto text-[10px] text-[#3a3a3a]">
+                      em breve
+                    </span>
+                  </button>
+                </div>
+                <div className="border-t border-[#2a2a2a] py-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:bg-red-950/30"
+                  >
+                    <span>→</span>
+                    Sair
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Conteúdo da página */}
+        <section className="px-10 py-8">
+          <Outlet />
+        </section>
+      </div>
     </div>
   );
 }
