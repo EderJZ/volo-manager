@@ -4,10 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.database import Base, engine
 from app.models.user import User
 from app.models.client import Client
-from app.routes import auth, clients, projects, dashboard, users, client_portal, project_notes, project_phases
 from app.models.project import Project
 from app.models.project_note import ProjectNote
 from app.models.project_phase_date import ProjectPhaseDate
+from app.routes import auth, clients, projects, dashboard, users, client_portal, project_notes, project_phases
 
 Base.metadata.create_all(bind=engine)
 
@@ -15,12 +15,7 @@ app = FastAPI(title="Volo Manager API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-        "http://localhost",
-        "http://localhost:80",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
