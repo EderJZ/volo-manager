@@ -12,10 +12,17 @@ function getTokenData() {
   }
 }
 
+function isTokenExpired(tokenData) {
+  if (!tokenData?.exp) return true;
+  const now = Math.floor(Date.now() / 1000);
+  return tokenData.exp < now;
+}
+
 export function ProtectedRoute({ children, allowedRoles }) {
   const tokenData = getTokenData();
 
-  if (!tokenData) {
+  if (!tokenData || isTokenExpired(tokenData)) {
+    localStorage.removeItem("volo_token");
     return <Navigate to="/login" replace />;
   }
 
