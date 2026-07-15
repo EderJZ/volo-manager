@@ -11,13 +11,22 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    user_exists = db.query(User).filter(User.email == user_data.email).first()
+def register(
+    user_data: UserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Apenas administradores podem cadastrar novos usuários."
+        )
 
+    user_exists = db.query(User).filter(User.email == user_data.email).first()
     if user_exists:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="E-mail ja cadastrado"
+            detail="E-mail já cadastrado"
         )
 
     user = User(
@@ -26,11 +35,9 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         password_hash=hash_password(user_data.password),
         role=user_data.role
     )
-
     db.add(user)
     db.commit()
     db.refresh(user)
-
     return user
 
 
