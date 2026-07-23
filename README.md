@@ -1,210 +1,314 @@
-# Volo Manager
+# 🎬 Volo Manager — Sistema de Gestão de Projetos Audiovisuais
 
-Sistema de gerenciamento de projetos audiovisuais da **Volo Visual**. Controla clientes, projetos, status de produção e orçamentos. Inclui portal do cliente para acompanhamento de projetos em tempo real.
+> Sistema interno de gerenciamento de projetos para a **Volo Visual**, empresa de cinematografia aérea com drones. Desenvolvido do zero com FastAPI + React, com portal do cliente, board Kanban e deploy em produção.
 
----
-
-## Tecnologias
-
-**Backend**
-
-- Python 3.12+
-- FastAPI
-- SQLAlchemy
-- PostgreSQL
-- JWT (autenticação)
-
-**Frontend**
-
-- React + Vite
-- Tailwind CSS
-- React Router
-
-**Infraestrutura**
-
-- Docker (banco de dados)
+![Deploy Backend](https://img.shields.io/badge/backend-Render-46E3B7?style=flat-square&logo=render)
+![Deploy Frontend](https://img.shields.io/badge/frontend-Vercel-black?style=flat-square&logo=vercel)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.136-009688?style=flat-square&logo=fastapi)
+![React](https://img.shields.io/badge/React-18-61DAFB?style=flat-square&logo=react)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-4169E1?style=flat-square&logo=postgresql)
+![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?style=flat-square&logo=docker)
+![Status](https://img.shields.io/badge/status-em%20produção-brightgreen?style=flat-square)
 
 ---
 
-## Pré-requisitos
+## 🌐 Acesse o Projeto
 
-Antes de começar, instale:
+🔗 **[manager.volovisual.com.br](https://manager.volovisual.com.br)**  
+📡 **[API — Swagger Docs](https://volo-manager-backend.onrender.com/docs)**
+
+---
+
+## 📸 Sobre o Projeto
+
+O **Volo Manager** é um sistema web completo de gestão operacional desenvolvido para a Volo Visual. Permite que a equipe gerencie todo o ciclo de vida dos projetos audiovisuais — do orçamento à entrega — com controle de fases, anotações internas, comunicação com clientes e análise financeira.
+
+O sistema foi construído do zero como projeto de portfólio com foco em arquitetura profissional: API REST com autenticação JWT, banco de dados relacional, múltiplos perfis de usuário, containerização com Docker e deploy em produção.
+
+---
+
+## ✨ Funcionalidades
+
+### 👥 Gestão de Usuários e Clientes
+
+- Cadastro de usuários com perfis: **Admin**, **Editor**, **Operador** e **Cliente**
+- Controle de acesso por perfil em todas as rotas
+- Clientes com acesso exclusivo ao portal próprio
+- Ativação e desativação de clientes (soft delete)
+
+### 📋 Board Kanban de Projetos
+
+- Pipeline visual com 7 fases: Orçamento → Aprovado → Pré-produção → Gravando → Em edição → Revisão → Concluído
+- Cards com título, cliente, prazo, valor e contador de anotações
+- Alertas automáticos de prazo vencido
+- Status especiais: **Arquivado** (resgatável) e **Cancelado** (somente leitura)
+
+### 📝 Sistema de Anotações
+
+- Anotações **internas** (visíveis apenas para a equipe)
+- Anotações **para o cliente** (aparecem no portal)
+- Histórico com autor, data e hora
+- Edição e remoção de anotações
+
+### 🔄 Controle de Fases
+
+- Botão "Concluir etapa e avançar" com modal de resumo obrigatório
+- Resumo da etapa vira anotação destacada no histórico
+- Voltar fase, arquivar e cancelar projeto
+- Linha do tempo visual por projeto
+
+### 🌟 Portal do Cliente
+
+- Login separado com acesso exclusivo aos próprios projetos
+- Barra de progresso visual com todas as fases
+- Atualizações em tempo real de cada etapa concluída
+- Sino de notificações para novas atualizações
+- Troca de senha pelo próprio cliente
+
+### 📊 Dashboard com Análises
+
+- Cards de resumo: clientes, projetos, orçamento total e ticket médio
+- Pipeline interativo — clique em cada status para ver os projetos
+- Aba **Financeiro** com gráficos de linha (orçamento por mês e receita concluída)
+- Taxa de conclusão do total orçado
+
+### 🔐 Segurança
+
+- Autenticação JWT com expiração de token
+- Rotas protegidas por perfil de usuário
+- Senha hasheada com bcrypt
+- Variáveis de ambiente para dados sensíveis
+- Registro de novos usuários restrito ao admin
+
+---
+
+## 🛠️ Tecnologias Utilizadas
+
+### Backend
+
+| Tecnologia        | Uso                                    |
+| ----------------- | -------------------------------------- |
+| FastAPI           | Framework principal da API REST        |
+| SQLAlchemy        | ORM para acesso ao banco de dados      |
+| PostgreSQL 16     | Banco de dados relacional              |
+| Pydantic          | Validação de dados e schemas           |
+| python-jose       | Geração e validação de tokens JWT      |
+| bcrypt / passlib  | Hash seguro de senhas                  |
+| Uvicorn           | Servidor ASGI de produção              |
+| pydantic-settings | Configuração via variáveis de ambiente |
+
+### Frontend
+
+| Tecnologia       | Uso                                           |
+| ---------------- | --------------------------------------------- |
+| React 18         | Biblioteca principal de UI                    |
+| Vite 8           | Bundler e servidor de desenvolvimento         |
+| React Router DOM | Roteamento e rotas protegidas                 |
+| Axios            | Cliente HTTP para comunicação com a API       |
+| Tailwind CSS     | Estilização utilitária                        |
+| SVG puro         | Gráficos financeiros sem bibliotecas externas |
+
+### Infraestrutura
+
+| Tecnologia              | Uso                                  |
+| ----------------------- | ------------------------------------ |
+| Docker + Docker Compose | Containerização de todos os serviços |
+| Nginx                   | Servidor do frontend + proxy reverso |
+| Render                  | Hospedagem do backend em produção    |
+| Vercel                  | Hospedagem do frontend em produção   |
+| GitHub                  | Versionamento e CI/CD automático     |
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+volo-manager/
+├── backend/
+│   ├── app/
+│   │   ├── models/              # Models SQLAlchemy
+│   │   │   ├── user.py
+│   │   │   ├── project.py
+│   │   │   ├── project_note.py
+│   │   │   └── project_phase_date.py
+│   │   ├── routes/              # Endpoints da API
+│   │   │   ├── auth.py
+│   │   │   ├── clients.py
+│   │   │   ├── projects.py
+│   │   │   ├── project_notes.py
+│   │   │   ├── project_phases.py
+│   │   │   ├── dashboard.py
+│   │   │   ├── users.py
+│   │   │   └── client_portal.py
+│   │   ├── schemas/             # Schemas Pydantic
+│   │   ├── services/            # Autenticação JWT
+│   │   ├── constants.py         # Fases e status do pipeline
+│   │   ├── database.py          # Conexão com PostgreSQL
+│   │   ├── settings.py          # Configuração via .env
+│   │   └── main.py              # Aplicação FastAPI
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── AppLayout.jsx    # Layout admin com sidebar
+│   │   │   ├── ClientLayout.jsx # Layout portal do cliente
+│   │   │   └── ProtectedRoute.jsx
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Clients.jsx
+│   │   │   ├── Projects.jsx     # Board Kanban
+│   │   │   ├── Users.jsx
+│   │   │   └── ClientPortal.jsx
+│   │   └── services/
+│   │       └── api.js           # Configuração Axios
+│   ├── Dockerfile
+│   ├── nginx.conf
+│   └── vercel.json
+├── docker-compose.yml
+└── README.md
+```
+
+---
+
+## 🗄️ Modelagem do Banco de Dados
+
+```
+users
+├── id, name, email, password_hash
+├── role (admin | editor | operator | client)
+├── is_active, phone, company
+
+projects
+├── id, title, description, status
+├── budget, start_date, deadline
+├── current_phase_description
+├── has_client_update
+└── client_id → users.id
+
+project_notes
+├── id, project_id, user_id
+├── content, type (internal | client)
+└── created_at, updated_at
+
+project_phase_dates
+├── id, project_id, phase
+├── start_date, end_date
+```
+
+---
+
+## 🔌 Endpoints da API
+
+### Auth
+
+| Método | Rota             | Descrição               |
+| ------ | ---------------- | ----------------------- |
+| POST   | `/auth/register` | Criar usuário (admin)   |
+| POST   | `/auth/login`    | Login e geração de JWT  |
+| GET    | `/auth/me`       | Dados do usuário logado |
+
+### Clientes / Usuários
+
+| Método | Rota            | Descrição                  |
+| ------ | --------------- | -------------------------- |
+| GET    | `/clients/`     | Listar clientes ativos     |
+| POST   | `/clients/`     | Criar cliente com senha    |
+| PUT    | `/clients/{id}` | Editar / desativar cliente |
+| GET    | `/users/`       | Listar equipe interna      |
+| POST   | `/users/`       | Criar usuário da equipe    |
+
+### Projetos
+
+| Método | Rota                             | Descrição           |
+| ------ | -------------------------------- | ------------------- |
+| GET    | `/projects/`                     | Listar projetos     |
+| POST   | `/projects/`                     | Criar projeto       |
+| PUT    | `/projects/{id}`                 | Editar projeto      |
+| DELETE | `/projects/{id}`                 | Excluir (admin)     |
+| POST   | `/projects/{id}/phases/advance`  | Avançar fase        |
+| POST   | `/projects/{id}/phases/retreat`  | Voltar fase         |
+| POST   | `/projects/{id}/phases/cancel`   | Cancelar projeto    |
+| POST   | `/projects/{id}/phases/archive`  | Arquivar projeto    |
+| POST   | `/projects/{id}/phases/restore`  | Restaurar arquivado |
+| GET    | `/projects/{id}/notes/`          | Listar anotações    |
+| POST   | `/projects/{id}/notes/`          | Criar anotação      |
+| PUT    | `/projects/{id}/notes/{note_id}` | Editar anotação     |
+| DELETE | `/projects/{id}/notes/{note_id}` | Remover anotação    |
+
+### Dashboard
+
+| Método | Rota                 | Descrição                    |
+| ------ | -------------------- | ---------------------------- |
+| GET    | `/dashboard/summary` | Resumo completo com gráficos |
+
+### Portal do Cliente
+
+| Método | Rota                                    | Descrição               |
+| ------ | --------------------------------------- | ----------------------- |
+| GET    | `/client-portal/me`                     | Dados do cliente logado |
+| GET    | `/client-portal/my-projects`            | Projetos do cliente     |
+| GET    | `/client-portal/my-projects/{id}/notes` | Atualizações do projeto |
+| POST   | `/client-portal/mark-read/{id}`         | Marcar como lido        |
+| PUT    | `/client-portal/change-password`        | Trocar senha            |
+
+---
+
+## 🚀 Como Rodar Localmente
+
+### Pré-requisitos
 
 - [Python 3.12+](https://www.python.org/downloads/)
-- [Node.js 18+](https://nodejs.org/)
+- [Node.js 22+](https://nodejs.org/)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 - [Git](https://git-scm.com/)
 
-Para verificar se estão instalados, abra o terminal e rode:
+### Com Docker (recomendado)
 
 ```bash
-python --version
-node --version
-docker --version
-git --version
-```
-
----
-
-## Clonando o projeto
-
-```bash
+# Clone o repositório
 git clone https://github.com/EderJZ/volo-manager.git
 cd volo-manager
+
+# Configure as variáveis de ambiente
+cp backend/.env.example backend/.env
+# Edite o .env com sua SECRET_KEY
+
+# Suba todos os serviços
+docker-compose up --build
 ```
 
----
+Acesse:
 
-## Configurando o Banco de Dados
+- **Frontend:** `http://localhost`
+- **Backend:** `http://localhost:8000`
+- **Swagger:** `http://localhost:8000/docs`
 
-O banco de dados roda via Docker. Com o Docker Desktop aberto, rode:
-
-```bash
-docker-compose up -d
-```
-
-Isso vai baixar e iniciar o PostgreSQL automaticamente. Para verificar se está rodando:
+### Sem Docker (desenvolvimento)
 
 ```bash
-docker ps
-```
+# 1. Banco de dados
+docker-compose up db -d
 
-Deve aparecer um container chamado `volo_manager_db`.
-
----
-
-## Configurando o Backend
-
-### 1. Entrar na pasta do backend
-
-```bash
+# 2. Backend
 cd backend
-```
-
-### 2. Criar o ambiente virtual
-
-O ambiente virtual isola as dependências do projeto para não conflitar com outros projetos Python na sua máquina.
-
-**Windows:**
-
-```bash
 python -m venv .venv
-```
-
-**Mac/Linux:**
-
-```bash
-python3 -m venv .venv
-```
-
-### 3. Ativar o ambiente virtual
-
-Sempre que for trabalhar no projeto, ative o ambiente virtual primeiro.
-
-**Windows (PowerShell):**
-
-```bash
-.venv\Scripts\Activate.ps1
-```
-
-**Windows (CMD):**
-
-```bash
-.venv\Scripts\activate.bat
-```
-
-**Mac/Linux:**
-
-```bash
-source .venv/bin/activate
-```
-
-Quando ativado, o terminal mostra `(.venv)` no início da linha.
-
-> **Problema no Windows com PowerShell?** Se aparecer erro de permissão ao ativar, rode este comando e tente novamente:
->
-> ```bash
-> Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-> ```
-
-### 4. Instalar as dependências
-
-Com o ambiente virtual ativado:
-
-```bash
+.venv\Scripts\activate      # Windows
+source .venv/bin/activate   # Mac/Linux
 pip install -r requirements.txt
-```
-
-> **Problema com pip?** Tente atualizar o pip primeiro:
->
-> ```bash
-> python -m pip install --upgrade pip
-> ```
->
-> Depois rode o `pip install -r requirements.txt` novamente.
-
-### 5. Criar o arquivo de variáveis de ambiente
-
-Crie um arquivo chamado `.env` dentro da pasta `backend/` com o seguinte conteúdo:
-
-```
-SECRET_KEY=sua-chave-secreta-aqui
-ACCESS_TOKEN_EXPIRE_MINUTES=60
-```
-
-Para gerar uma chave secreta segura, rode:
-
-```bash
-python -c "import secrets; print(secrets.token_hex(32))"
-```
-
-Copie o resultado e cole no lugar de `sua-chave-secreta-aqui`.
-
-### 6. Iniciar o backend
-
-```bash
 uvicorn app.main:app --reload
-```
 
-O backend estará disponível em `http://127.0.0.1:8000`.
-
-A documentação automática (Swagger) estará em `http://127.0.0.1:8000/docs`.
-
----
-
-## Configurando o Frontend
-
-Abra um **novo terminal** (mantenha o backend rodando no anterior).
-
-### 1. Entrar na pasta do frontend
-
-```bash
+# 3. Frontend (novo terminal)
 cd frontend
-```
-
-### 2. Instalar as dependências
-
-```bash
 npm install
-```
-
-### 3. Iniciar o frontend
-
-```bash
 npm run dev
 ```
 
-O frontend estará disponível em `http://localhost:5173`.
+### Criar o primeiro usuário admin
 
----
-
-## Criando o primeiro usuário administrador
-
-Com o backend rodando, acesse o Swagger em `http://127.0.0.1:8000/docs`.
-
-1. Clique em `POST /auth/register`
-2. Clique em **Try it out**
-3. Preencha o body:
+Com o backend rodando, acesse `http://localhost:8000/docs` e use `POST /auth/register`:
 
 ```json
 {
@@ -215,121 +319,86 @@ Com o backend rodando, acesse o Swagger em `http://127.0.0.1:8000/docs`.
 }
 ```
 
-4. Clique em **Execute**
-
-Agora acesse `http://localhost:5173/login` e entre com o email e senha cadastrados.
-
 ---
 
-## Estrutura do projeto
+## 🌍 Deploy em Produção
+
+| Serviço        | Plataforma        | URL                               |
+| -------------- | ----------------- | --------------------------------- |
+| Frontend       | Vercel            | manager.volovisual.com.br         |
+| Backend        | Render            | volo-manager-backend.onrender.com |
+| Banco de dados | Render PostgreSQL | Privado                           |
+
+### Variáveis de ambiente (produção)
+
+**Backend (Render):**
 
 ```
-volo-manager/
-├── backend/
-│   ├── app/
-│   │   ├── models/          # Modelos do banco de dados
-│   │   ├── routes/          # Rotas da API
-│   │   ├── schemas/         # Validação de dados (Pydantic)
-│   │   ├── services/        # Lógica de autenticação
-│   │   ├── database.py      # Conexão com o banco
-│   │   ├── main.py          # Aplicação principal
-│   │   └── settings.py      # Configurações (.env)
-│   ├── .env                 # Variáveis de ambiente (não vai ao Git)
-│   └── requirements.txt     # Dependências Python
-├── frontend/
-│   ├── src/
-│   │   ├── components/      # Componentes reutilizáveis
-│   │   ├── pages/           # Páginas da aplicação
-│   │   └── services/        # Configuração da API
-│   └── package.json
-└── docker-compose.yml       # Configuração do banco de dados
+DATABASE_URL=postgresql://...
+SECRET_KEY=...
+ACCESS_TOKEN_EXPIRE_MINUTES=60
+```
+
+**Frontend (Vercel):**
+
+```
+VITE_API_URL=https://volo-manager-backend.onrender.com
 ```
 
 ---
 
-## Perfis de usuário
+## 🔐 Perfis de Acesso
 
-| Perfil     | Acesso                                                |
-| ---------- | ----------------------------------------------------- |
-| `admin`    | Acesso total — gerencia usuários, clientes e projetos |
-| `editor`   | Gerencia clientes e projetos                          |
-| `operator` | Gerencia clientes e projetos                          |
-| `client`   | Acesso apenas ao portal do cliente                    |
-
----
-
-## Rotas da aplicação
-
-| Rota             | Descrição                           |
-| ---------------- | ----------------------------------- |
-| `/login`         | Tela de login                       |
-| `/dashboard`     | Visão geral (admin/editor/operator) |
-| `/clients`       | Gerenciamento de clientes           |
-| `/projects`      | Gerenciamento de projetos           |
-| `/users`         | Gerenciamento de usuários (admin)   |
-| `/client-portal` | Portal do cliente                   |
+| Perfil       | Permissões                                                          |
+| ------------ | ------------------------------------------------------------------- |
+| **Admin**    | Acesso total — gerencia usuários, exclui projetos, move fases       |
+| **Editor**   | Gerencia clientes, projetos e move fases                            |
+| **Operador** | Gerencia clientes e projetos, não move fases                        |
+| **Cliente**  | Acesso exclusivo ao portal — visualiza seus projetos e atualizações |
 
 ---
 
-## Problemas comuns
-
-### `pip install` falha com erro de compilação
-
-Atualize o pip e tente novamente:
+## 📦 Scripts Disponíveis
 
 ```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-```
+# Backend
+uvicorn app.main:app --reload       # Desenvolvimento
+uvicorn app.main:app --host 0.0.0.0 # Produção
 
-### Erro de conexão com o banco de dados
+# Frontend
+npm run dev      # Desenvolvimento
+npm run build    # Build de produção
+npm run preview  # Preview local do build
 
-Verifique se o Docker está rodando e o container está ativo:
-
-```bash
-docker ps
-```
-
-Se não aparecer o `volo_manager_db`, rode:
-
-```bash
-docker-compose up -d
-```
-
-### Porta 8000 já em uso
-
-Outro processo está usando a porta. Rode o backend em outra porta:
-
-```bash
-uvicorn app.main:app --reload --port 8001
-```
-
-### Porta 5173 já em uso
-
-O Vite escolhe automaticamente a próxima porta disponível. Verifique no terminal qual porta foi usada.
-
-### Ambiente virtual não ativa no Windows
-
-Execute no PowerShell como administrador:
-
-```bash
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+# Docker
+docker-compose up --build    # Subir todos os serviços
+docker-compose down          # Parar todos os serviços
+docker-compose up db -d      # Apenas o banco de dados
 ```
 
 ---
 
-## Comandos úteis
+## 🧠 Aprendizados e Desafios
 
-```bash
-# Ver logs do banco de dados
-docker logs volo_manager_db
+Este projeto foi desenvolvido como parte do meu aprendizado em desenvolvimento web full stack. Alguns dos principais desafios enfrentados:
 
-# Parar o banco de dados
-docker-compose down
+- **Arquitetura de autenticação JWT** com refresh automático e verificação de expiração no frontend
+- **Relacionamentos SQLAlchemy** entre usuários, clientes e projetos após refatoração de tabelas
+- **Containerização com Docker** e comunicação entre serviços via Nginx proxy reverso
+- **Deploy em produção** com variáveis de ambiente, CORS e configuração de domínio personalizado
+- **Design de sistema de permissões** com múltiplos perfis de acesso em rotas protegidas
+- **Portal do cliente** com notificações em tempo real e separação total de contexto
 
-# Reiniciar o banco de dados
-docker-compose restart
+---
 
-# Acessar o banco via terminal
-docker exec -it volo_manager_db psql -U volo -d volo_manager
-```
+## 👨‍💻 Desenvolvedor
+
+Desenvolvido por **Eder JZ**
+
+[![GitHub](https://img.shields.io/badge/GitHub-EderJZ-181717?style=flat-square&logo=github)](https://github.com/EderJZ)
+
+---
+
+## 📄 Licença
+
+Este projeto é de uso privado. Todos os direitos reservados à Volo Visual.
