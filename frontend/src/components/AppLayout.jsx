@@ -22,7 +22,9 @@ export function AppLayout() {
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileDropdownOpen, setMobileDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
+  const mobileDropdownRef = useRef(null);
 
   useEffect(() => {
     api
@@ -36,6 +38,12 @@ export function AppLayout() {
     function handleClickOutside(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
         setDropdownOpen(false);
+      }
+      if (
+        mobileDropdownRef.current &&
+        !mobileDropdownRef.current.contains(e.target)
+      ) {
+        setMobileDropdownOpen(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -72,8 +80,33 @@ export function AppLayout() {
           </h1>
         </Link>
         {user ? (
-          <div className="flex h-9 w-9 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-xs font-semibold text-[#c8a13a]">
-            {getInitials(user.name)}
+          <div className="relative" ref={mobileDropdownRef}>
+            <button
+              onClick={() => setMobileDropdownOpen(!mobileDropdownOpen)}
+              className="flex h-9 w-9 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-xs font-semibold text-[#c8a13a]"
+            >
+              {getInitials(user.name)}
+            </button>
+
+            {mobileDropdownOpen && (
+              <div className="fixed inset-x-4 top-16 z-50 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl">
+                <div className="border-b border-[#2a2a2a] px-4 py-3">
+                  <p className="text-sm font-semibold text-[#f5f1e8]">
+                    {user.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-[#6f6b63]">{user.email}</p>
+                </div>
+                <div className="border-t border-[#2a2a2a] py-1">
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 px-4 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:bg-red-950/30"
+                  >
+                    <span>→</span>
+                    Sair
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         ) : (
           <div className="h-9 w-9" />
