@@ -105,12 +105,12 @@ export function ClientLayout() {
     <div className="min-h-screen bg-[#090909] text-[#f5f1e8]">
       {/* Modal de alterar senha */}
       {profileModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
           <div
             className="absolute inset-0 bg-black/70 backdrop-blur-sm"
             onClick={closeProfileModal}
           />
-          <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-8">
+          <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-6 sm:p-8">
             <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
               Perfil
             </p>
@@ -176,7 +176,7 @@ export function ClientLayout() {
                 <p className="text-xs text-[#5ce07a]">{passwordSuccess}</p>
               )}
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex flex-col gap-3 pt-2 sm:flex-row">
                 <button
                   type="submit"
                   className="flex-1 bg-[#c8a13a] px-4 py-3 text-xs font-semibold uppercase tracking-wider text-[#090909] transition hover:bg-[#e0bd55]"
@@ -197,18 +197,18 @@ export function ClientLayout() {
       )}
 
       {/* Header */}
-      <header className="border-b border-[#2a2a2a] bg-[#0c0c0c] px-8 py-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-xs uppercase tracking-[0.45em] text-[#c8a13a]">
+      <header className="border-b border-[#2a2a2a] bg-[#0c0c0c] px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-[0.3em] text-[#c8a13a] sm:text-xs sm:tracking-[0.45em]">
               Volo Visual
             </p>
-            <h1 className="mt-1 text-lg font-semibold tracking-widest text-[#f5f1e8]">
+            <h1 className="mt-1 truncate text-sm font-semibold tracking-wide text-[#f5f1e8] sm:text-lg sm:tracking-widest">
               Portal do Cliente
             </h1>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-2 sm:gap-4">
             {/* Sino */}
             <div className="relative" ref={notifRef}>
               <button
@@ -238,7 +238,7 @@ export function ClientLayout() {
 
               {/* Dropdown de notificações */}
               {notifOpen && (
-                <div className="absolute right-0 top-12 z-50 w-72 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl">
+                <div className="fixed inset-x-4 top-16 z-50 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-72">
                   <div className="border-b border-[#2a2a2a] px-4 py-3">
                     <p className="text-xs uppercase tracking-wider text-[#6f6b63]">
                       Notificações
@@ -282,12 +282,12 @@ export function ClientLayout() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-3 transition hover:opacity-80"
+                  className="flex items-center gap-2 transition hover:opacity-80 sm:gap-3"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-sm font-semibold text-[#c8a13a]">
+                  <div className="flex h-9 w-9 shrink-0 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-sm font-semibold text-[#c8a13a]">
                     {getInitials(client.name)}
                   </div>
-                  <div className="text-left">
+                  <div className="hidden text-left sm:block">
                     <p className="text-sm font-semibold text-[#f5f1e8]">
                       {client.name}
                     </p>
@@ -295,13 +295,13 @@ export function ClientLayout() {
                       <p className="text-xs text-[#6f6b63]">{client.company}</p>
                     )}
                   </div>
-                  <span className="text-xs text-[#6f6b63]">
+                  <span className="hidden text-xs text-[#6f6b63] sm:inline">
                     {dropdownOpen ? "▲" : "▼"}
                   </span>
                 </button>
 
                 {dropdownOpen && (
-                  <div className="absolute right-0 top-12 z-50 w-52 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl">
+                  <div className="fixed inset-x-4 top-16 z-50 border border-[#2a2a2a] bg-[#0c0c0c] shadow-xl sm:absolute sm:inset-x-auto sm:right-0 sm:top-12 sm:w-52">
                     <div className="border-b border-[#2a2a2a] px-4 py-3">
                       <p className="text-sm font-semibold text-[#f5f1e8]">
                         {client.name}
@@ -337,7 +337,7 @@ export function ClientLayout() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-4xl px-8 py-10">
+      <main className="mx-auto max-w-4xl px-4 py-6 sm:px-6 sm:py-8 lg:px-8 lg:py-10">
         <Outlet context={{ setNotifications }} />
       </main>
     </div>

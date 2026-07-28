@@ -21,6 +21,7 @@ export function AppLayout() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -41,6 +42,11 @@ export function AppLayout() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Fecha o drawer mobile ao trocar de rota
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
+
   function handleLogout() {
     localStorage.removeItem("volo_token");
     navigate("/login");
@@ -48,7 +54,55 @@ export function AppLayout() {
 
   return (
     <div className="min-h-screen bg-[#090909] text-[#f5f1e8]">
-      <aside className="fixed left-0 top-0 flex h-screen w-64 flex-col border-r border-[#2a2a2a] bg-[#0c0c0c] px-6 py-8">
+      {/* Header mobile (hambúrguer + logo) */}
+      <div className="fixed inset-x-0 top-0 z-40 flex h-16 items-center justify-between border-b border-[#2a2a2a] bg-[#0c0c0c] px-4 lg:hidden">
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="flex h-9 w-9 items-center justify-center border border-[#2a2a2a] text-[#c8a13a]"
+          aria-label="Abrir menu"
+        >
+          ☰
+        </button>
+        <Link to="/dashboard" className="text-center">
+          <p className="text-[10px] uppercase tracking-[0.35em] text-[#c8a13a]">
+            Volo Visual
+          </p>
+          <h1 className="-mt-0.5 text-sm font-semibold tracking-widest text-[#f5f1e8]">
+            Manager
+          </h1>
+        </Link>
+        {user ? (
+          <div className="flex h-9 w-9 items-center justify-center border border-[#3a3320] bg-[#1a1500] text-xs font-semibold text-[#c8a13a]">
+            {getInitials(user.name)}
+          </div>
+        ) : (
+          <div className="h-9 w-9" />
+        )}
+      </div>
+
+      {/* Overlay escuro atrás do drawer (mobile) */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 z-40 bg-black/60 lg:hidden"
+        />
+      )}
+
+      {/* Sidebar / Drawer */}
+      <aside
+        className={`fixed left-0 top-0 z-50 flex h-screen w-64 flex-col border-r border-[#2a2a2a] bg-[#0c0c0c] px-6 py-8 transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Botão fechar (só mobile) */}
+        <button
+          onClick={() => setSidebarOpen(false)}
+          className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center text-[#9b988f] lg:hidden"
+          aria-label="Fechar menu"
+        >
+          ✕
+        </button>
+
         {/* Logo */}
         <div className="mb-10 border-b border-[#2a2a2a] pb-8">
           <Link to="/dashboard" className="group block">
@@ -99,14 +153,25 @@ export function AppLayout() {
               </p>
             </div>
           )}
+          {/* Sair visível direto no drawer mobile */}
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 px-1 py-2 text-xs uppercase tracking-wider text-red-400 transition hover:text-red-300 lg:hidden"
+          >
+            <span>→</span>
+            Sair
+          </button>
         </div>
       </aside>
 
       {/* Área de conteúdo */}
-      <div className="ml-64 min-h-screen relative">
-        {/* Avatar fixo no canto superior direito */}
+      <div className="min-h-screen relative pt-16 lg:ml-64 lg:pt-0">
+        {/* Avatar fixo no canto superior direito (somente desktop) */}
         {user && (
-          <div className="absolute right-10 top-8 z-30" ref={dropdownRef}>
+          <div
+            className="absolute right-4 top-8 z-30 hidden lg:block lg:right-10"
+            ref={dropdownRef}
+          >
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="flex items-center gap-3 transition hover:opacity-80"
@@ -170,7 +235,7 @@ export function AppLayout() {
         )}
 
         {/* Conteúdo da página */}
-        <section className="px-10 py-8">
+        <section className="px-4 py-6 sm:px-6 lg:px-10 lg:py-8">
           <Outlet />
         </section>
       </div>

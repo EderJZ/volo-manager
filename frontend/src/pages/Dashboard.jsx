@@ -236,7 +236,7 @@ function ProjectsByStatus({ projects, onClose, statusLabel, color }) {
             key={project.id}
             className="border border-[#2a2a2a] bg-[#0c0c0c] p-4"
           >
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex-1">
                 <h3 className="text-sm font-semibold text-[#f5f1e8]">
                   {project.title}
@@ -255,19 +255,21 @@ function ProjectsByStatus({ projects, onClose, statusLabel, color }) {
                   </div>
                 )}
               </div>
-              <div className="shrink-0 text-right">
+              <div className="flex items-center justify-between gap-3 sm:block sm:shrink-0 sm:text-right">
                 <p className="text-xs text-[#6f6b63]">Prazo</p>
-                <p className="mt-1 text-xs text-[#d9d2c0]">
-                  {formatDate(project.deadline)}
-                </p>
-                {deadlineAlert && (
-                  <p
-                    className="mt-1 text-[10px]"
-                    style={{ color: deadlineAlert.color }}
-                  >
-                    {deadlineAlert.label}
+                <div className="flex items-center gap-2 sm:mt-1 sm:block">
+                  <p className="text-xs text-[#d9d2c0]">
+                    {formatDate(project.deadline)}
                   </p>
-                )}
+                  {deadlineAlert && (
+                    <p
+                      className="text-[10px] sm:mt-1"
+                      style={{ color: deadlineAlert.color }}
+                    >
+                      {deadlineAlert.label}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -308,7 +310,7 @@ export function Dashboard() {
 
   if (error) {
     return (
-      <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4">
+      <main className="flex min-h-[60vh] flex-col items-center justify-center gap-4 px-4 text-center">
         <p className="text-sm text-[#9b988f]">{error}</p>
         <button
           onClick={loadDashboard}
@@ -345,12 +347,12 @@ export function Dashboard() {
   return (
     <main>
       {/* Cabeçalho */}
-      <header className="mb-8 flex items-end justify-between border-b border-[#2a2a2a] pb-8">
+      <header className="mb-6 flex flex-col gap-4 border-b border-[#2a2a2a] pb-6 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:pb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
             Visão geral
           </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-wide">
+          <h1 className="mt-3 text-2xl font-semibold tracking-wide sm:text-4xl">
             Dashboard
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9b988f]">
@@ -359,39 +361,39 @@ export function Dashboard() {
         </div>
         <button
           onClick={loadDashboard}
-          className="border border-[#2a2a2a] px-5 py-2 text-xs uppercase tracking-widest text-[#9b988f] transition hover:border-[#c8a13a] hover:text-[#c8a13a]"
+          className="self-start border border-[#2a2a2a] px-5 py-2 text-xs uppercase tracking-widest text-[#9b988f] transition hover:border-[#c8a13a] hover:text-[#c8a13a] sm:self-auto"
         >
           Atualizar
         </button>
       </header>
 
       {/* Cards principais */}
-      <section className="grid gap-5 md:grid-cols-4">
-        <article className="border border-[#2a2a2a] bg-[#101010] p-6">
+      <section className="grid gap-4 sm:gap-5 md:grid-cols-4">
+        <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
           <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
             Clientes
           </span>
-          <strong className="mt-4 block text-4xl font-semibold text-[#f5f1e8]">
+          <strong className="mt-4 block text-3xl font-semibold text-[#f5f1e8] sm:text-4xl">
             {summary.total_clients}
           </strong>
           <p className="mt-2 text-xs text-[#9b988f]">cadastrados</p>
         </article>
 
-        <article className="border border-[#2a2a2a] bg-[#101010] p-6">
+        <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
           <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
             Projetos
           </span>
-          <strong className="mt-4 block text-4xl font-semibold text-[#f5f1e8]">
+          <strong className="mt-4 block text-3xl font-semibold text-[#f5f1e8] sm:text-4xl">
             {summary.total_projects}
           </strong>
           <p className="mt-2 text-xs text-[#9b988f]">no total</p>
         </article>
 
-        <article className="border border-[#2a2a2a] bg-[#101010] p-6 md:col-span-2">
+        <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6 md:col-span-2">
           <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
             Orçamento total
           </span>
-          <strong className="mt-4 block text-3xl font-semibold text-[#c8a13a]">
+          <strong className="mt-4 block text-2xl font-semibold text-[#c8a13a] sm:text-3xl">
             {summary.total_budget.toLocaleString("pt-BR", {
               style: "currency",
               currency: "BRL",
@@ -410,41 +412,43 @@ export function Dashboard() {
       </section>
 
       {/* Tabs */}
-      <div className="mt-8 flex border-b border-[#2a2a2a]">
-        {[
-          { key: "overview", label: "Pipeline" },
-          { key: "financial", label: "Financeiro" },
-          {
-            key: "finished",
-            label: `Finalizados (${finishedProjects.length})`,
-          },
-        ].map((t) => (
-          <button
-            key={t.key}
-            onClick={() => {
-              setTab(t.key);
-              setSelectedStatus(null);
-            }}
-            className={`px-6 py-3 text-xs uppercase tracking-wider transition ${
-              tab === t.key
-                ? "border-b-2 border-[#c8a13a] text-[#c8a13a]"
-                : "text-[#6f6b63] hover:text-[#9b988f]"
-            }`}
-          >
-            {t.label}
-          </button>
-        ))}
+      <div className="mt-8 overflow-x-auto border-b border-[#2a2a2a]">
+        <div className="flex w-max min-w-full">
+          {[
+            { key: "overview", label: "Pipeline" },
+            { key: "financial", label: "Financeiro" },
+            {
+              key: "finished",
+              label: `Finalizados (${finishedProjects.length})`,
+            },
+          ].map((t) => (
+            <button
+              key={t.key}
+              onClick={() => {
+                setTab(t.key);
+                setSelectedStatus(null);
+              }}
+              className={`shrink-0 whitespace-nowrap px-4 py-3 text-xs uppercase tracking-wider transition sm:px-6 ${
+                tab === t.key
+                  ? "border-b-2 border-[#c8a13a] text-[#c8a13a]"
+                  : "text-[#6f6b63] hover:text-[#9b988f]"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Tab: Pipeline */}
       {tab === "overview" && (
-        <section className="mt-6 border border-[#2a2a2a] bg-[#101010] p-6">
-          <div className="mb-6 flex items-end justify-between">
+        <section className="mt-6 border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
+          <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.25em] text-[#c8a13a]">
                 Pipeline
               </p>
-              <h2 className="mt-2 text-2xl font-semibold">
+              <h2 className="mt-2 text-xl font-semibold sm:text-2xl">
                 Projetos por status
               </h2>
             </div>
@@ -520,12 +524,12 @@ export function Dashboard() {
       {/* Tab: Financeiro */}
       {tab === "financial" && (
         <section className="mt-6 space-y-5">
-          <div className="grid gap-5 md:grid-cols-3">
-            <article className="border border-[#2a2a2a] bg-[#101010] p-6">
+          <div className="grid gap-4 sm:gap-5 md:grid-cols-3">
+            <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
               <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
                 Total orçado
               </span>
-              <strong className="mt-4 block text-2xl font-semibold text-[#c8a13a]">
+              <strong className="mt-4 block text-xl font-semibold text-[#c8a13a] sm:text-2xl">
                 {summary.total_budget.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -534,11 +538,11 @@ export function Dashboard() {
               <p className="mt-2 text-xs text-[#9b988f]">todos os projetos</p>
             </article>
 
-            <article className="border border-[#2a2a2a] bg-[#101010] p-6">
+            <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
               <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
                 Receita concluída
               </span>
-              <strong className="mt-4 block text-2xl font-semibold text-[#5ce07a]">
+              <strong className="mt-4 block text-xl font-semibold text-[#5ce07a] sm:text-2xl">
                 {summary.completed_budget.toLocaleString("pt-BR", {
                   style: "currency",
                   currency: "BRL",
@@ -547,11 +551,11 @@ export function Dashboard() {
               <p className="mt-2 text-xs text-[#9b988f]">projetos concluídos</p>
             </article>
 
-            <article className="border border-[#2a2a2a] bg-[#101010] p-6">
+            <article className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
               <span className="text-xs uppercase tracking-[0.25em] text-[#9b988f]">
                 Taxa de conclusão
               </span>
-              <strong className="mt-4 block text-2xl font-semibold text-[#f5f1e8]">
+              <strong className="mt-4 block text-xl font-semibold text-[#f5f1e8] sm:text-2xl">
                 {summary.total_budget > 0
                   ? Math.round(
                       (summary.completed_budget / summary.total_budget) * 100,
@@ -563,15 +567,15 @@ export function Dashboard() {
             </article>
           </div>
 
-          <div className="grid gap-5 md:grid-cols-2">
-            <div className="border border-[#2a2a2a] bg-[#101010] p-6">
+          <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+            <div className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
               <LineChart
                 data={summary.monthly_budget}
                 color="#c8a13a"
                 label="Orçamento por mês"
               />
             </div>
-            <div className="border border-[#2a2a2a] bg-[#101010] p-6">
+            <div className="border border-[#2a2a2a] bg-[#101010] p-4 sm:p-6">
               <LineChart
                 data={summary.monthly_completed}
                 color="#5ce07a"
@@ -598,11 +602,11 @@ export function Dashboard() {
             return (
               <article
                 key={project.id}
-                className="border border-[#2a2a2a] bg-[#101010] p-5 opacity-80 transition hover:opacity-100 hover:border-[#4a422d]"
+                className="border border-[#2a2a2a] bg-[#101010] p-4 opacity-80 transition hover:opacity-100 hover:border-[#4a422d] sm:p-5"
               >
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                       <h2 className="text-base font-semibold text-[#f5f1e8]">
                         {project.title}
                       </h2>
@@ -619,7 +623,7 @@ export function Dashboard() {
                       </p>
                     )}
                   </div>
-                  <div className="shrink-0 text-right">
+                  <div className="flex items-center justify-between gap-3 sm:block sm:shrink-0 sm:text-right">
                     {project.budget > 0 && (
                       <p className="text-sm font-semibold text-[#c8a13a]">
                         {Number(project.budget).toLocaleString("pt-BR", {
@@ -629,7 +633,7 @@ export function Dashboard() {
                       </p>
                     )}
                     {project.deadline && (
-                      <p className="mt-1 text-xs text-[#6f6b63]">
+                      <p className="text-xs text-[#6f6b63] sm:mt-1">
                         Prazo: {formatDate(project.deadline)}
                       </p>
                     )}

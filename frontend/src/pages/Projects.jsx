@@ -76,7 +76,7 @@ function getDeadlineAlert(deadlineStr) {
 function Toast({ message, visible }) {
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 border border-[#3a3320] bg-[#1a1500] px-6 py-4 text-sm text-[#c8a13a] shadow-lg transition-all duration-300 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"}`}
+      className={`fixed inset-x-4 bottom-4 z-50 border border-[#3a3320] bg-[#1a1500] px-5 py-4 text-sm text-[#c8a13a] shadow-lg transition-all duration-300 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:px-6 ${visible ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"}`}
     >
       <div className="flex items-center gap-3">
         <span>✓</span>
@@ -98,15 +98,15 @@ function ConfirmModal({
 }) {
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4">
       <div
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
         onClick={onCancel}
       />
-      <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-8">
+      <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-6 sm:p-8">
         <h3 className="text-xl font-semibold">{title}</h3>
         <p className="mt-3 text-sm leading-6 text-[#9b988f]">{message}</p>
-        <div className="mt-8 flex gap-3">
+        <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={onConfirm}
             className={`flex-1 px-4 py-3 text-sm font-semibold uppercase tracking-[0.18em] transition ${danger ? "bg-red-900/60 text-red-300 hover:bg-red-900" : "bg-[#c8a13a] text-[#090909] hover:bg-[#e0bd55]"}`}
@@ -144,7 +144,7 @@ function Drawer({ open, onClose, title, subtitle, children, footer }) {
       <div
         className={`fixed right-0 top-0 z-50 flex h-screen w-full max-w-lg flex-col border-l border-[#2a2a2a] bg-[#0c0c0c] shadow-2xl transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="flex items-start justify-between border-b border-[#2a2a2a] p-6">
+        <div className="flex items-start justify-between border-b border-[#2a2a2a] p-4 sm:p-6">
           <div>
             <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
               {subtitle}
@@ -572,12 +572,12 @@ function ProjectDrawer({
       <div className="space-y-3">
         {/* Modal de conclusão */}
         {concludeModal.open && (
-          <div className="fixed inset-0 z-[60] flex items-center justify-center">
+          <div className="fixed inset-0 z-[60] flex items-center justify-center px-4">
             <div
               className="absolute inset-0 bg-black/70 backdrop-blur-sm"
               onClick={() => setConcludeModal({ open: false, summary: "" })}
             />
-            <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-8">
+            <div className="relative w-full max-w-sm border border-[#2a2a2a] bg-[#101010] p-6 sm:p-8">
               <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
                 Concluir etapa
               </p>
@@ -599,7 +599,7 @@ function ProjectDrawer({
                   })
                 }
               />
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
                 <button
                   disabled={!concludeModal.summary.trim()}
                   onClick={async () => {
@@ -753,21 +753,23 @@ function ProjectDrawer({
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 flex border-b border-[#2a2a2a]">
-          {[
-            { key: "overview", label: "Visão geral" },
-            { key: "notes", label: `Anotações (${notes.length})` },
-            { key: "phases", label: "Fases" },
-            { key: "details", label: "Editar" },
-          ].map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`px-4 py-2 text-xs uppercase tracking-wider transition ${tab === t.key ? "border-b-2 border-[#c8a13a] text-[#c8a13a]" : "text-[#6f6b63] hover:text-[#9b988f]"}`}
-            >
-              {t.label}
-            </button>
-          ))}
+        <div className="mb-6 overflow-x-auto border-b border-[#2a2a2a]">
+          <div className="flex w-max min-w-full">
+            {[
+              { key: "overview", label: "Visão geral" },
+              { key: "notes", label: `Anotações (${notes.length})` },
+              { key: "phases", label: "Fases" },
+              { key: "details", label: "Editar" },
+            ].map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`shrink-0 whitespace-nowrap px-4 py-2 text-xs uppercase tracking-wider transition ${tab === t.key ? "border-b-2 border-[#c8a13a] text-[#c8a13a]" : "text-[#6f6b63] hover:text-[#9b988f]"}`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Tab: Visão Geral */}
@@ -1403,19 +1405,19 @@ export function Projects() {
       />
 
       {/* Cabeçalho */}
-      <header className="mb-8 flex items-end justify-between border-b border-[#2a2a2a] pb-8">
+      <header className="mb-6 flex flex-col gap-5 border-b border-[#2a2a2a] pb-6 sm:mb-8 sm:flex-row sm:items-end sm:justify-between sm:pb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.35em] text-[#c8a13a]">
             Produção
           </p>
-          <h1 className="mt-3 text-4xl font-semibold tracking-wide">
+          <h1 className="mt-3 text-2xl font-semibold tracking-wide sm:text-4xl">
             Projetos
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-6 text-[#9b988f]">
             Gerencie o pipeline de produção audiovisual da Volo Visual.
           </p>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-between gap-4 sm:justify-start">
           <button
             onClick={() => setShowFinished(!showFinished)}
             className="text-xs uppercase tracking-widest text-[#9b988f] transition hover:text-[#c8a13a]"
@@ -1426,7 +1428,7 @@ export function Projects() {
           </button>
           <button
             onClick={() => setNewDrawerOpen(true)}
-            className="bg-[#c8a13a] px-6 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#090909] transition hover:bg-[#e0bd55]"
+            className="bg-[#c8a13a] px-5 py-3 text-sm font-semibold uppercase tracking-[0.18em] text-[#090909] transition hover:bg-[#e0bd55] sm:px-6"
           >
             + Novo projeto
           </button>
@@ -1437,23 +1439,23 @@ export function Projects() {
       {!showFinished && (
         <div className="relative">
           {/* Gradiente esquerda */}
-          <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-12 bg-gradient-to-r from-[#090909] to-transparent" />
+          <div className="pointer-events-none absolute left-0 top-0 z-10 hidden h-full w-12 bg-gradient-to-r from-[#090909] to-transparent md:block" />
 
           {/* Gradiente direita */}
-          <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-12 bg-gradient-to-l from-[#090909] to-transparent" />
+          <div className="pointer-events-none absolute right-0 top-0 z-10 hidden h-full w-12 bg-gradient-to-l from-[#090909] to-transparent md:block" />
 
-          {/* Botão esquerda */}
+          {/* Botão esquerda — só desktop, mobile usa swipe nativo */}
           <button
             onClick={() => scrollKanban(-1)}
-            className="absolute left-0 top-1/2 z-20 -translate-y-1/2 border border-[#2a2a2a] bg-[#101010] px-4 py-5 text-2xl text-[#c8a13a] transition hover:border-[#c8a13a] hover:bg-[#1a1500]"
+            className="absolute left-0 top-1/2 z-20 hidden -translate-y-1/2 border border-[#2a2a2a] bg-[#101010] px-4 py-5 text-2xl text-[#c8a13a] transition hover:border-[#c8a13a] hover:bg-[#1a1500] md:block"
           >
             ‹
           </button>
 
-          {/* Botão direita */}
+          {/* Botão direita — só desktop */}
           <button
             onClick={() => scrollKanban(1)}
-            className="absolute right-0 top-1/2 z-20 -translate-y-1/2 border border-[#2a2a2a] bg-[#101010] px-4 py-5 text-2xl text-[#c8a13a] transition hover:border-[#c8a13a] hover:bg-[#1a1500]"
+            className="absolute right-0 top-1/2 z-20 hidden -translate-y-1/2 border border-[#2a2a2a] bg-[#101010] px-4 py-5 text-2xl text-[#c8a13a] transition hover:border-[#c8a13a] hover:bg-[#1a1500] md:block"
           >
             ›
           </button>
@@ -1461,7 +1463,7 @@ export function Projects() {
           {/* Board */}
           <div
             ref={scrollRef}
-            className="overflow-x-auto px-8 pb-4 [&::-webkit-scrollbar]:hidden"
+            className="overflow-x-auto px-4 pb-4 [&::-webkit-scrollbar]:hidden sm:px-6 md:px-8"
             style={{ scrollbarWidth: "none" }}
           >
             <div className="flex gap-4" style={{ minWidth: "max-content" }}>
@@ -1502,7 +1504,7 @@ export function Projects() {
                 onClick={() => openProject(project)}
                 className="cursor-pointer border border-[#2a2a2a] bg-[#101010] p-5 opacity-70 transition hover:opacity-100 hover:border-[#4a422d]"
               >
-                <div className="flex items-start justify-between gap-2">
+                <div className="flex flex-wrap items-start justify-between gap-2">
                   <h3 className="text-sm font-semibold text-[#f5f1e8]">
                     {project.title}
                   </h3>
